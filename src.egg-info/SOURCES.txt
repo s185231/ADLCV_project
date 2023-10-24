@@ -1,7 +1,10 @@
 README.md
 setup.py
 src/__init__.py
+src/ddpm.py
 src/eval_model.py
+src/lightning_model.py
+src/lightning_train.py
 src/load_data.py
 src/model.py
 src/sweep.py

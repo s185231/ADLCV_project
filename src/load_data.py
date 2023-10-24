@@ -42,14 +42,14 @@ def get_dataloaders(ev, batch_size, image_size = 512, num_workers=8):
             transforms.RandomVerticalFlip(p=0.5),
             #transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),
             #transforms.GaussianBlur(kernel_size=5),
-            transforms.Resize((image_size, image_size))
+            transforms.Resize((image_size, image_size), antialias=None)
         ]
     )
     data_transform_test = transforms.Compose(
         [
             transforms.ToTensor(),
             #transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
-            transforms.Resize((image_size, image_size))
+            transforms.Resize((image_size, image_size), antialias=None)
         ]
     )
 

@@ -31,7 +31,7 @@ class ExposureDataset(Dataset):
         target = self.transform(target)
         return img, target
 
-def get_dataloaders(ev, batch_size, num_workers=8):
+def get_dataloaders(ev, batch_size, image_size = 512, num_workers=8):
     assert (ev == 'P' or ev == 'N'), "Please input P or N"
 
     data_transform = transforms.Compose(
@@ -42,19 +42,18 @@ def get_dataloaders(ev, batch_size, num_workers=8):
             transforms.RandomVerticalFlip(p=0.5),
             #transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),
             #transforms.GaussianBlur(kernel_size=5),
-            transforms.Resize((512, 512), antialias=None)
+            transforms.Resize((image_size, image_size), antialias=None)
         ]
     )
     data_transform_test = transforms.Compose(
         [
             transforms.ToTensor(),
             #transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
-            transforms.Resize((512, 512), antialias=None)
+            transforms.Resize((image_size, image_size), antialias=None)
         ]
     )
 
     trainset = ExposureDataset("training", ev, transform=data_transform)
-    #print(len(trainset))
     valset = ExposureDataset("validation", ev, transform=data_transform_test)
     testset = ExposureDataset("testing", ev, transform=data_transform_test)
 

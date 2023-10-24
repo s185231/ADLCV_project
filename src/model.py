@@ -1,10 +1,9 @@
-from typing import Dict, List, Optional
-import pytorch_lightning as pl
+# Adapted from : https://github.com/dome272/Diffusion-Models-pytorch
 import torch
-from torch import nn
-from torch.nn import functional as F
+import torch.nn as nn
+import torch.nn.functional as F
 
-class SelfAttention(pl.LightningModule):
+class SelfAttention(nn.Module):
     def __init__(self, channels, size):
         super(SelfAttention, self).__init__()
         self.channels = channels
@@ -27,7 +26,7 @@ class SelfAttention(pl.LightningModule):
         return attention_value.swapaxes(2, 1).view(-1, self.channels, self.size, self.size)
 
 
-class DoubleConv(pl.LightningModule):
+class DoubleConv(nn.Module):
     def __init__(self, in_channels, out_channels, mid_channels=None, residual=False):
         super().__init__()
         self.residual = residual
@@ -48,7 +47,7 @@ class DoubleConv(pl.LightningModule):
             return self.double_conv(x)
 
 
-class Down(pl.LightningModule):
+class Down(nn.Module):
     def __init__(self, in_channels, out_channels, emb_dim=256):
         super().__init__()
         self.maxpool_conv = nn.Sequential(
@@ -71,7 +70,7 @@ class Down(pl.LightningModule):
         return x + emb
 
 
-class Up(pl.LightningModule):
+class Up(nn.Module):
     def __init__(self, in_channels, out_channels, emb_dim=256):
         super().__init__()
 
@@ -97,21 +96,9 @@ class Up(pl.LightningModule):
         return x + emb
 
 
-class Model(pl.LightningModule):
-    def __init__(
-        self,
-        img_size: int = 16,
-        c_in: int = 3,
-        c_out: int = 3,
-        time_dim: int = 256,
-        device: str = "cpu",
-        channels: int = 32,
-        *args,
-        **kwargs
-        ) -> None:
-        super(Model, self).__init__(*args, **kwargs)
-
-
+class UNet(nn.Module):
+    def __init__(self, img_size=16, c_in=3, c_out=3, time_dim=256, device="cpu", channels=32):
+        super().__init__()
         self.device = device
         self.time_dim = time_dim
         self.inc = DoubleConv(c_in, channels)
@@ -146,7 +133,7 @@ class Model(pl.LightningModule):
         return pos_enc
 
     def forward(self, x, t):
-        
+
         t = t.unsqueeze(-1).type(torch.float)
         t = self.pos_encoding(t, self.time_dim)
         x1 = self.inc(x)
