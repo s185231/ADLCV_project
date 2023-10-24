@@ -1,0 +1,16 @@
+num_blocks:
+  value: 2
+num_features:
+  value: 64
+lr:
+  value: 0.00001
+weight_decay:
+  value: None
+epochs:
+  value: 1000
+batch_size:
+  value: 16
+batch_normalization:
+  value: True
+optimizer:
+  value: SGD
