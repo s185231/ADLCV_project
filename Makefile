@@ -7,7 +7,7 @@
 PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 BUCKET = [OPTIONAL] your-bucket-for-syncing-data (do not include 's3://')
 PROFILE = default
-PROJECT_NAME = dtu_mlops_exam_project
+PROJECT_NAME = dtu_final_project
 PYTHON_INTERPRETER = python3
 CUDA_NUM = 1 # default
 ckpt = best.ckpt

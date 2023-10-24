@@ -4,5 +4,7 @@ setup(
     name="src",
     packages=find_packages(),
     version="0.1.0",
-    description="Final project at the Advanced Deep Learning in Computer Vision course at DTU",
+    description="Project 1 at the Deep Learning in Computer Vision course at DTU",
+    author="Group20",
+    license="MIT",
 )
