@@ -7,36 +7,29 @@ from src.model import Model
 
 def train(config=None, checkpoint_callbacks=None):
     with wandb.init(config=config, 
-                    project="project1_02514",
-                    entity="chrillebon",):
-        # If called by wandb.agent, as below,
-        # this config will be set by Sweep Controller
+                    project="ADLCV_final_project",
+                    entity="mlops_s194333",):
+
         config = wandb.config
 
-        num_blocks = int(wandb.config.num_blocks)
-        num_features = int(wandb.config.num_features)
         lr = wandb.config.lr
         weight_decay = wandb.config.weight_decay
         epochs = wandb.config.epochs
         batch_size = wandb.config.batch_size
-        batch_normalization = wandb.config.batch_normalization
-        optimizer = wandb.config.optimizer
+        ev = wandb.config.ev
+        image_size = wandb.config.image_size
 
         device = 0
         model = Model(
-            num_blocks=num_blocks,
-            num_features=num_features,
             lr=lr,
             weight_decay=weight_decay,
             batch_size=batch_size,
-            batch_normalization=batch_normalization,
-            optimizer=optimizer,
         )
 
         wandb.watch(model, log_freq=1)
-        logger = pl.loggers.WandbLogger(project="project1_02514", entity="chrillebon")
+        logger = pl.loggers.WandbLogger(project="ADLCV_final_project", entity="mlops_s194333")
 
-        trainloader, valloader, _ = get_dataloaders(batch_size=batch_size)
+        trainloader, valloader, _ = get_dataloaders(ev, batch_size, image_size, num_workers=8)
 
         # make sure no models are saved if no checkpoints are given
         if checkpoint_callbacks is None:
@@ -64,8 +57,8 @@ def train(config=None, checkpoint_callbacks=None):
 
 
 if __name__ == "__main__":
-    checkpoint_callback = ModelCheckpoint(dirpath="models/SGD_BN", filename="best")
+    checkpoint_callback = ModelCheckpoint(dirpath="models", filename="best")
     train(
-        config="src/config/default_params_SGD_BN.yaml",
+        config="src/config/config.yaml",
         checkpoint_callbacks=[checkpoint_callback],
     )

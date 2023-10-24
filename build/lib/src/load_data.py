@@ -37,7 +37,7 @@ def get_dataloaders(ev, batch_size, num_workers=8):
     data_transform = transforms.Compose(
         [
             transforms.ToTensor(),
-            transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
+            #transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
             transforms.RandomRotation(90),
             transforms.RandomVerticalFlip(p=0.5),
             #transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),
@@ -48,7 +48,7 @@ def get_dataloaders(ev, batch_size, num_workers=8):
     data_transform_test = transforms.Compose(
         [
             transforms.ToTensor(),
-            transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
+            #transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
             transforms.Resize((512, 512), antialias=None)
         ]
     )
