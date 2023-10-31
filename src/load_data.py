@@ -16,18 +16,18 @@ class ExposureDataset(Dataset):
         self.target_list = []
         for file in self.files:
             if file.split('_')[-1][0] == ev:
-                self.ev_list.append(os.path.join(self.path,file))
+                self.ev_list.append(Image.open(os.path.join(self.path,file)))
             elif file.split('_')[-1][0] == '0':
-                self.target_list.append(os.path.join(self.path,file))
-                self.target_list.append(os.path.join(self.path,file))
+                self.target_list.append(Image.open(os.path.join(self.path,file)))
+                self.target_list.append(Image.open(os.path.join(self.path,file)))
         
     def __len__(self):
         return len(self.ev_list)
         
     def __getitem__(self, idx):
-        img = Image.open(self.ev_list[idx])
+        img = self.ev_list[idx]
         img = self.transform(img)
-        target = Image.open(self.target_list[idx])
+        target = self.target_list[idx]
         target = self.transform(target)
         return img, target
 
@@ -36,20 +36,20 @@ def get_dataloaders(ev, batch_size, image_size = 512, num_workers=8):
 
     data_transform = transforms.Compose(
         [
-            transforms.ToTensor(),
             #transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
             transforms.RandomRotation(90),
             transforms.RandomVerticalFlip(p=0.5),
             #transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1),
             #transforms.GaussianBlur(kernel_size=5),
-            transforms.Resize((image_size, image_size), antialias=None)
+            transforms.Resize((image_size, image_size), antialias=None),
+            transforms.ToTensor()
         ]
     )
     data_transform_test = transforms.Compose(
         [
-            transforms.ToTensor(),
             #transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
-            transforms.Resize((image_size, image_size), antialias=None)
+            transforms.Resize((image_size, image_size), antialias=None),
+            transforms.ToTensor()
         ]
     )
 
