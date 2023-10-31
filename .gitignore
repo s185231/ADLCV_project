@@ -2,4 +2,4 @@ data/
 runs/
 models/
 results/
-config/__init__.py
+__init__.py
