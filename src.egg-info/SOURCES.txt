@@ -3,10 +3,9 @@ setup.py
 src/__init__.py
 src/ddpm.py
 src/eval_model.py
-src/lightning_model.py
-src/lightning_train.py
 src/load_data.py
 src/model.py
+src/sort_data_folders.py
 src/sweep.py
 src/train.py
 src.egg-info/PKG-INFO

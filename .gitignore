@@ -3,3 +3,4 @@ runs/
 models/
 results/
 src/__init__.py
+wandb/

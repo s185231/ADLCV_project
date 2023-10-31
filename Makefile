@@ -11,6 +11,7 @@ PROJECT_NAME = dtu_final_project
 PYTHON_INTERPRETER = python3
 CUDA_NUM = 1 # default
 ckpt = best.ckpt
+config = config/config.yaml
 
 ifeq (,$(shell which conda))
 HAS_CONDA=False
@@ -56,7 +57,8 @@ endif
 
 ## Running the training script. Possible argument is CUDA_NUM=X, where X in {0,1}
 train:
-	CUDA_VISIBLE_DEVICES=$(CUDA_NUM) $(PYTHON_INTERPRETER) src/train.py
+	$(PYTHON_INTERPRETER) setup.py install
+	CUDA_VISIBLE_DEVICES=$(CUDA_NUM) $(PYTHON_INTERPRETER) src/train.py --config=$(config)
 
 ## Evaluating saved model. Run using "make eval ckpt='path_to.ckpt'" (with quotes). Possible argument is CUDA_NUM=X, where X in {0,1}
 eval:

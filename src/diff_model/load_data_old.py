@@ -8,41 +8,36 @@ from src import _DATA_PATH
 from tqdm import tqdm
 
 class ExposureDataset(Dataset):
-    def __init__(self, state, ev, transform, num_samples=None):
-        self.path_img = os.path.join(_DATA_PATH, state, ev[0], ev[1])
-        self.path_target = os.path.join(_DATA_PATH, state, '0')
+    def __init__(self, state, ev, transform):
+        self.path = os.path.join(_DATA_PATH, state, "INPUT_IMAGES")
         self.transform = transform
-        self.files_img = os.listdir(self.path_img)
-        self.files_target = os.listdir(self.path_target)
-        if num_samples is not None:
-            self.files_img = self.files_img[:num_samples]
-            self.files_target = self.files_target[:num_samples]
-        self.images = []
-        self.targets = []
-        pbar_img = tqdm(self.files_img)
-        pbar_target = tqdm(self.files_target)
+        self.files = os.listdir(self.path)
+        self.ev_list = []
+        self.target_list = []
+        pbar = tqdm(self.files)
 
-        for file in pbar_img:
-            img = self.transform(Image.open(os.path.join(self.path_img,file)))
-            self.images.append(img)
-        for file in pbar_target:
-            target = self.transform(Image.open(os.path.join(self.path_target,file)))
-            self.targets.append(target)
-            #self.targets.append(target)
-        print(len(self.images), len(self.targets))
-
+        for file in pbar:
+            if file.split('_')[-1][0] == ev:
+                img = self.transform(Image.open(os.path.join(self.path,file)))
+                self.ev_list.append(img)
+            elif file.split('_')[-1][0] == '0':
+                target = self.transform(Image.open(os.path.join(self.path,file)))
+                self.target_list.append(target)
+                self.target_list.append(target)
+        print(len(self.ev_list), len(self.target_list))
+        
     def __len__(self):
-        return len(self.images)
+        return len(self.ev_list)
         
     def __getitem__(self, idx):
-        img = self.images[idx]
+        img = self.ev_list[idx]
         #img = self.transform(img)
-        target = self.targets[idx]
+        target = self.target_list[idx]
         #target = self.transform(target)
         return img, target
 
 def get_dataloaders(ev, batch_size, image_size = 512):
-    assert (ev == 'P1' or ev == 'N1' or ev == 'P2' or ev == 'N2'), "Please input P1, P2, N1 or N2"
+    assert (ev == 'P' or ev == 'N'), "Please input P or N"
 
     data_transform = transforms.Compose(
         [
@@ -67,8 +62,8 @@ def get_dataloaders(ev, batch_size, image_size = 512):
     valset = ExposureDataset("validation", ev, transform=data_transform_test)
     testset = ExposureDataset("testing", ev, transform=data_transform_test)
 
-    trainloader = DataLoader(trainset, batch_size=batch_size, num_workers=8, shuffle=True)
-    valloader = DataLoader(valset, batch_size=batch_size, num_workers=8, shuffle=False)
-    testloader = DataLoader(testset, batch_size=batch_size, num_workers=8, shuffle=False)
+    trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True)
+    valloader = DataLoader(valset, batch_size=batch_size, shuffle=False)
+    testloader = DataLoader(testset, batch_size=batch_size, shuffle=False)
 
     return trainloader, valloader, testloader

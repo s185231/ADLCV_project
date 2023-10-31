@@ -52,11 +52,11 @@ class Diffusion:
         noise = torch.randn_like(x)
         assert noise.shape == x.shape, 'Invalid shape of noise'
         
-        x_noised = sqrt_alpha_bar*x + sqrt_one_minus_alpha_bar*noise # HINT: Create the noisy version of x. See Eq. 4 in the ddpm paper at page 2
+        x_noised = sqrt_alpha_bar*x + sqrt_one_minus_alpha_bar*noise # eq 3! # HINT: Create the noisy version of x. See Eq. 4 in the ddpm paper at page 2
         return x_noised, noise
     
 
-    def p_mean_std(self, model, x_t, t):
+    def p_mean_std(self, model, image, x_t, t):
         """
         Calculate mean and std of p(x_{t-1} | x_t) using the reverse process and model
         """
@@ -65,18 +65,18 @@ class Diffusion:
         beta = self.betas[t][:, None, None, None] # match image dimensions
 
         # TASK 3 : Implement the revese process
-        predicted_noise = model(x_t, t) # HINT: use model to predict noise
+        predicted_noise = model(torch.cat((x_t, image), dim=1), t) # HINT: use model to predict noise
         mean = 1/torch.sqrt(alpha)*(x_t-beta/torch.sqrt(1-alpha_bar)*predicted_noise) # HINT: calculate the mean of the distribution p(x_{t-1} | x_t). See Eq. 11 in the ddpm paper at page 4
         std = torch.sqrt(beta)
 
         return mean, std
 
-    def p_sample(self, model, x_t, t):
+    def p_sample(self, model, image, x_t, t):
         """
         Sample from p(x{t-1} | x_t) using the reverse process and model
         """
         # TASK 3: implement the reverse process
-        mean, std = self.p_mean_std(model, x_t, t)
+        mean, std = self.p_mean_std(model, image, x_t, t)
         
         # HINT: Having calculate the mean and std of p(x{x_t} | x_t), we sample noise from a normal distribution.
         # see line 3 of the Algorithm 2 (Sampling) at page 4 of the ddpm paper.
@@ -98,10 +98,10 @@ class Diffusion:
         if timesteps_to_save is not None:
             intermediates = []
         with torch.no_grad():
-            x = image
+            x = torch.randn((batch_size, 3, self.img_size, self.img_size)).to(self.device)
             for i in tqdm(reversed(range(1, self.T)), position=0, total=self.T-1):
                 t = (torch.ones(batch_size) * i).long().to(self.device)
-                x = self.p_sample(model, x, t)
+                x = self.p_sample(model, image, x, t)
                 if timesteps_to_save is not None and i in timesteps_to_save:
                     x_itermediate = (x.clamp(-1, 1) + 1) / 2
                     x_itermediate = (x_itermediate * 255).type(torch.uint8)
