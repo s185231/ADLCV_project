@@ -47,7 +47,7 @@ def train(config = None, device = None):
     with wandb.init(config=config, 
                     project="ADLCV_final_project",
                     entity="mlops_s194333",):
-
+        print(config)
         print(wandb.config)
 
         T = wandb.config.T
@@ -59,18 +59,22 @@ def train(config = None, device = None):
         num_epochs = wandb.config.num_epochs
         ev = wandb.config.ev
         # split config_path
-        experiment_name = config.split('/')[-1].split('.')[0]
+        if config is not None:
+            experiment_name = config.split('/')[-1].split('.')[0]
+        else:
+            experiment_name = 'sweep'
         input_channels=3
         show=False
         beta_start = wandb.config.beta_start
         beta_end = wandb.config.beta_end
+        testing = wandb.config.testing
 
 
         """Implements algrorithm 1 (Training) from the ddpm paper at page 4"""
         time_stamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
         create_result_folders(os.path.join(experiment_name, time_stamp))
-        trainloader, valloader, _ = get_dataloaders(ev, batch_size, img_size)
+        trainloader, valloader, _ = get_dataloaders(ev, batch_size, img_size, testing=testing)
 
         model = UNet(img_size=img_size, c_in=2*input_channels, c_out=input_channels, 
                     time_dim=time_dim,channels=channels, device=device).to(device)
@@ -102,6 +106,8 @@ def train(config = None, device = None):
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
+
+                wandb.log({'loss': loss})
 
 
                 pbar.set_postfix(MSE=loss.item())

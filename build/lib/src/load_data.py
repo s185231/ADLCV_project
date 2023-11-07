@@ -8,15 +8,15 @@ from src import _DATA_PATH
 from tqdm import tqdm
 
 class ExposureDataset(Dataset):
-    def __init__(self, state, ev, transform, num_samples=None):
+    def __init__(self, state, ev, transform, testing = False):
         self.path_img = os.path.join(_DATA_PATH, state, ev[0], ev[1])
         self.path_target = os.path.join(_DATA_PATH, state, '0')
         self.transform = transform
         self.files_img = os.listdir(self.path_img)
         self.files_target = os.listdir(self.path_target)
-        if num_samples is not None:
-            self.files_img = self.files_img[:num_samples]
-            self.files_target = self.files_target[:num_samples]
+        if testing:
+            self.files_img = self.files_img[:10]
+            self.files_target = self.files_target[:10]
         self.images = []
         self.targets = []
         pbar_img = tqdm(self.files_img)
@@ -28,20 +28,16 @@ class ExposureDataset(Dataset):
         for file in pbar_target:
             target = self.transform(Image.open(os.path.join(self.path_target,file)))
             self.targets.append(target)
-            #self.targets.append(target)
-        print(len(self.images), len(self.targets))
 
     def __len__(self):
         return len(self.images)
         
     def __getitem__(self, idx):
         img = self.images[idx]
-        #img = self.transform(img)
         target = self.targets[idx]
-        #target = self.transform(target)
         return img, target
 
-def get_dataloaders(ev, batch_size, image_size = 512):
+def get_dataloaders(ev, batch_size, image_size = 512, testing = False):
     assert (ev == 'P1' or ev == 'N1' or ev == 'P2' or ev == 'N2'), "Please input P1, P2, N1 or N2"
 
     data_transform = transforms.Compose(
@@ -63,9 +59,9 @@ def get_dataloaders(ev, batch_size, image_size = 512):
         ]
     )
 
-    trainset = ExposureDataset("training", ev, transform=data_transform)
-    valset = ExposureDataset("validation", ev, transform=data_transform_test)
-    testset = ExposureDataset("testing", ev, transform=data_transform_test)
+    trainset = ExposureDataset("training", ev, transform=data_transform, testing = testing)
+    valset = ExposureDataset("validation", ev, transform=data_transform_test, testing = testing)
+    testset = ExposureDataset("testing", ev, transform=data_transform_test, testing = testing)
 
     trainloader = DataLoader(trainset, batch_size=batch_size, num_workers=8, shuffle=True)
     valloader = DataLoader(valset, batch_size=batch_size, num_workers=8, shuffle=False)

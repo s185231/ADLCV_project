@@ -104,7 +104,7 @@ def transfer_files():
 
 
 def move():
-    path_2 = "/u/data/s185231/ADLCV/ADLCV_project/data"
+    path_2 = "/u/data/s194333/ADLCV_project/data"
 
     stage = ['training', 'validation','testing']
     folders = ['N', 'P']
