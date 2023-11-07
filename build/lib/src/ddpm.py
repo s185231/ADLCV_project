@@ -108,9 +108,9 @@ class Diffusion:
                     intermediates.append(x_itermediate)
 
         model.train()
+        print(x.min(), x.max())
         x = (x.clamp(-1, 1) + 1) / 2
-        x = (x * 255).type(torch.uint8)
-
+        #x = (x * 255).type(torch.uint8)
         if timesteps_to_save is not None:
             intermediates.append(x)
             return x, intermediates

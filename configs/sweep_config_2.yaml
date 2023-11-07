@@ -1,5 +1,5 @@
 method: bayes
-name: 'sweep_config_1'
+name: 'sweep_config_2'
 metric:
   name: val loss
   goal: minimize
@@ -12,18 +12,18 @@ parameters:
   batch_size:
     value: 4
   beta_start:
-    min: 0.00008
-    max: 0.0003
+    min: 0.000095
+    max: 0.00015
   beta_end:
-    min: 0.009
-    max: 0.04
+    min: 0.015
+    max: 0.025
   ev:
     value: P1
   testing:
     value: False
   T:
     distribution: int_uniform
-    min: 400
+    min: 450
     max: 500
   img_size:
     value: 64

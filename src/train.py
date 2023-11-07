@@ -25,6 +25,9 @@ from src.load_data import get_dataloaders
 
 def save_images(images, originals, targets, path, show=True, title=None):
     nrow = int(images.shape[0])
+    print(images.min(), images.max())
+    print(originals.min(), originals.max())
+    print(targets.min(), targets.max())
     images = torch.cat((images, originals, targets), dim=0)
     grid = torchvision.utils.make_grid(images, nrow=nrow)
     ndarr = grid.permute(1, 2, 0).to('cpu').numpy()
@@ -76,7 +79,7 @@ def train(config = None):
         time_stamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
         create_result_folders(os.path.join(experiment_name, time_stamp))
-        trainloader, valloader, _ = get_dataloaders(ev, batch_size, img_size, testing=testing)
+        trainloader, valloader = get_dataloaders(ev, batch_size, img_size, testing=testing)
 
         model = UNet(img_size=img_size, c_in=2*input_channels, c_out=input_channels, 
                     time_dim=time_dim,channels=channels, device=device).to(device)
@@ -110,15 +113,18 @@ def train(config = None):
                 loss.backward()
                 optimizer.step()
 
-                wandb.log({'loss': loss})
+                wandb.log({'train loss': loss})
 
 
                 pbar.set_postfix(MSE=loss.item())
-                logger.add_scalar("MSE", loss.item(), global_step=epoch * l + i)
+                logger.add_scalar("train MSE", loss.item(), global_step=epoch * l + i)
             # time stamp
             
             pbar_val = tqdm(valloader)
             model.eval()
+            # pick a random integer between 0 and len(valloader)
+            random_idx = random.randint(0, len(valloader)-1)
+            val_loss = 0
             for i, (image, target) in enumerate(pbar_val):
                 image = image.to(device)
                 target = target.to(device)
@@ -127,18 +133,26 @@ def train(config = None):
                 # concatenate x_t and image
                 x_t = torch.cat((x_t, image), dim=1)
                 predicted_noise = model(x_t, t) # predict noise of x_t using the UNet
-                noise_loss = mse(noise, predicted_noise) # loss between noise and predicted noise
-                val_loss = noise_loss
+                
+                val_loss += mse(noise, predicted_noise).item() # loss between noise and predicted noise
 
-                wandb.log({'val loss': val_loss})
+                if i == random_idx:
+                    random_image = image
+                    random_target = target
 
-                logger.add_scalar("val MSE", val_loss.item(), global_step=epoch * l + i)
-            # time stamp
+            val_loss /= len(valloader)
 
+            wandb.log({'val loss': val_loss})
 
-            sampled_images = diffusion.p_sample_loop(image, model, batch_size=image.shape[0])
-            save_images(images=sampled_images, originals=image, targets=target, path=os.path.join("results", experiment_name, time_stamp, f"true_{epoch}.jpg"),
+            logger.add_scalar("val MSE", val_loss, global_step=epoch)
+            
+
+            sampled_images = diffusion.p_sample_loop(random_image, model, batch_size=random_image.shape[0])
+            save_images(images=sampled_images, originals=random_image, targets=random_target, path=os.path.join("results", experiment_name, time_stamp, f"{epoch}.jpg"),
                         show=show, title=f'Epoch {epoch}')
+            #sampled_images = diffusion.p_sample_loop(image, model, batch_size=image.shape[0])
+            #save_images(images=sampled_images, originals=image, targets=target, path=os.path.join("results", experiment_name, time_stamp, f"{epoch}.jpg"),
+            #            show=show, title=f'Epoch {epoch}')
             
             torch.save(model.state_dict(), os.path.join("models", experiment_name, time_stamp, f"weights-{epoch}.pt"))
 

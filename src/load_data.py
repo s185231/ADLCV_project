@@ -61,10 +61,28 @@ def get_dataloaders(ev, batch_size, image_size = 512, testing = False):
 
     trainset = ExposureDataset("training", ev, transform=data_transform, testing = testing)
     valset = ExposureDataset("validation", ev, transform=data_transform_test, testing = testing)
-    testset = ExposureDataset("testing", ev, transform=data_transform_test, testing = testing)
+    #testset = ExposureDataset("testing", ev, transform=data_transform_test, testing = testing)
 
     trainloader = DataLoader(trainset, batch_size=batch_size, num_workers=8, shuffle=True)
     valloader = DataLoader(valset, batch_size=batch_size, num_workers=8, shuffle=False)
+    #testloader = DataLoader(testset, batch_size=batch_size, num_workers=8, shuffle=False)
+
+    return trainloader, valloader#, testloader
+
+
+
+def get_test_dataloader(ev, batch_size, image_size = 512, testing = False):
+    assert (ev == 'P1' or ev == 'N1' or ev == 'P2' or ev == 'N2'), "Please input P1, P2, N1 or N2"
+
+    data_transform_test = transforms.Compose(
+        [
+            transforms.ToTensor(),
+            #transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
+            transforms.Resize((image_size, image_size), antialias=None),
+        ]
+    )
+    testset = ExposureDataset("testing", ev, transform=data_transform_test, testing = testing)
+
     testloader = DataLoader(testset, batch_size=batch_size, num_workers=8, shuffle=False)
 
-    return trainloader, valloader, testloader
+    return testloader
