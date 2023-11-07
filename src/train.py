@@ -25,9 +25,6 @@ from src.load_data import get_dataloaders
 
 def save_images(images, originals, targets, path, show=True, title=None):
     nrow = int(images.shape[0])
-    print(images.min(), images.max())
-    print(originals.min(), originals.max())
-    print(targets.min(), targets.max())
     images = torch.cat((images, originals, targets), dim=0)
     grid = torchvision.utils.make_grid(images, nrow=nrow)
     ndarr = grid.permute(1, 2, 0).to('cpu').numpy()
