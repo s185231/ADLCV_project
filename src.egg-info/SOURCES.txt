@@ -7,7 +7,6 @@ src/load_data.py
 src/model.py
 src/sort_data_folders.py
 src/sweep.py
-src/train copy.py
 src/train.py
 src.egg-info/PKG-INFO
 src.egg-info/SOURCES.txt

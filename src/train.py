@@ -23,7 +23,9 @@ import wandb
 from src.load_data import get_dataloaders
 
 
-def save_images(images, path, show=True, title=None, nrow=10):
+def save_images(images, originals, targets, path, show=True, title=None):
+    nrow = int(images.shape[0])
+    images = torch.cat((images, originals, targets), dim=0)
     grid = torchvision.utils.make_grid(images, nrow=nrow)
     ndarr = grid.permute(1, 2, 0).to('cpu').numpy()
     if title is not None:
@@ -43,13 +45,13 @@ def create_result_folders(experiment_name):
     os.makedirs(os.path.join("models", experiment_name), exist_ok=True)
     os.makedirs(os.path.join("results", experiment_name), exist_ok=True)
 
-def train(config = None, device = None):
+def train(config = None):
     with wandb.init(config=config, 
                     project="ADLCV_final_project",
                     entity="mlops_s194333",):
-        print(config)
         print(wandb.config)
-
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')  
+        print(f"Model will run on {device}")
         T = wandb.config.T
         img_size = wandb.config.img_size
         channels = wandb.config.channels
@@ -89,6 +91,7 @@ def train(config = None, device = None):
         for epoch in range(1, num_epochs + 1):
             logging.info(f"Starting epoch {epoch}:")
             pbar = tqdm(trainloader)
+            model.train()
 
             for i, (image, target) in enumerate(pbar):
                 image = image.to(device)
@@ -114,10 +117,27 @@ def train(config = None, device = None):
                 logger.add_scalar("MSE", loss.item(), global_step=epoch * l + i)
             # time stamp
             
+            pbar_val = tqdm(valloader)
+            model.eval()
+            for i, (image, target) in enumerate(pbar_val):
+                image = image.to(device)
+                target = target.to(device)
+                t = diffusion.sample_timesteps(image.shape[0]).to(device) # line 3 from the Training algorithm
+                x_t, noise = diffusion.q_sample(target, t) # inject noise to the images (forward process), HINT: use q_sample
+                # concatenate x_t and image
+                x_t = torch.cat((x_t, image), dim=1)
+                predicted_noise = model(x_t, t) # predict noise of x_t using the UNet
+                noise_loss = mse(noise, predicted_noise) # loss between noise and predicted noise
+                val_loss = noise_loss
+
+                wandb.log({'val loss': val_loss})
+
+                logger.add_scalar("val MSE", val_loss.item(), global_step=epoch * l + i)
+            # time stamp
+
+
             sampled_images = diffusion.p_sample_loop(image, model, batch_size=image.shape[0])
-            save_images(images=sampled_images, path=os.path.join("results", experiment_name, time_stamp, f"pred_{epoch}.jpg"),
-                        show=show, title=f'Epoch {epoch}')
-            save_images(images=image, path=os.path.join("results", experiment_name, time_stamp, f"true_{epoch}.jpg"),
+            save_images(images=sampled_images, originals=image, targets=target, path=os.path.join("results", experiment_name, time_stamp, f"true_{epoch}.jpg"),
                         show=show, title=f'Epoch {epoch}')
             
             torch.save(model.state_dict(), os.path.join("models", experiment_name, time_stamp, f"weights-{epoch}.pt"))
@@ -127,11 +147,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', type=str, default='configs/config.yaml')
     args = parser.parse_args()
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')  
-    print(f"Model will run on {device}")
     config = args.config
-    print(config)
-    train(config, device)
-
+    train(config)
 
         
