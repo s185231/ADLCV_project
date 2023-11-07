@@ -28,7 +28,7 @@ class ExposureDataset(Dataset):
         for file in pbar_target:
             target = self.transform(Image.open(os.path.join(self.path_target,file)))
             self.targets.append(target)
-            self.targets.append(target)
+            #self.targets.append(target)
         print(len(self.images), len(self.targets))
 
     def __len__(self):
