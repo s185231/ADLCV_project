@@ -17,6 +17,7 @@ class Diffusion:
         self.beta_end = beta_end
         self.img_size = img_size
         self.device = device
+        self.s = 0.008
         
         # TASK 1: Implement beta, alpha, and alpha_bar
         self.betas = self.get_betas('linear').to(device)
@@ -28,8 +29,13 @@ class Diffusion:
         if schedule == 'linear':
             return torch.linspace(self.beta_start,self.beta_end,self.T) # HINT: use torch.linspace to create a linear schedule from beta_start to beta_end
         # add your own (e.g. cosine)
-        else :
-            raise NotImplementedError('Not implemented!')
+        if schedule == 'cosine':
+            steps = self.T + 1
+            x = torch.linspace(0, self.T, steps)
+            alphas_cumprod = torch.cos(((x / self.T) + self.s) / (1 +  self.s) * torch.pi * 0.5) ** 2
+            alphas_cumprod = alphas_cumprod / alphas_cumprod[0]
+            betas = 1 - (alphas_cumprod[1:] / alphas_cumprod[:-1])
+            return torch.clip(betas, 0.0001, 0.9999)
     
 
     def q_sample(self, x, t):

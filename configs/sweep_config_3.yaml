@@ -1,0 +1,33 @@
+method: bayes
+name: 'sweep_config_1'
+metric:
+  name: val loss
+  goal: minimize
+parameters:
+  lr:
+    min: 0.00001
+    max: 0.01
+  num_epochs:
+    value: 10
+  batch_size:
+    value: 4
+  beta_start:
+    min: 0.00008
+    max: 0.0003
+  beta_end:
+    min: 0.009
+    max: 0.04
+  ev:
+    value: P1
+  testing:
+    value: False
+  T:
+    distribution: int_uniform
+    min: 400
+    max: 500
+  img_size:
+    value: 64
+  channels:
+    value: 32
+  time_dim:
+    values: [128, 256]
