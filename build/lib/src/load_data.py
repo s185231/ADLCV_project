@@ -13,20 +13,21 @@ class ExposureDataset(Dataset):
         self.path_target = os.path.join(_DATA_PATH, state, '0')
         self.transform = transform
         self.files_img = os.listdir(self.path_img)
-        self.files_target = os.listdir(self.path_target)
         if testing:
             self.files_img = self.files_img[:10]
-            self.files_target = self.files_target[:10]
         self.images = []
         self.targets = []
         pbar_img = tqdm(self.files_img)
-        pbar_target = tqdm(self.files_target)
 
         for file in pbar_img:
             img = self.transform(Image.open(os.path.join(self.path_img,file)))
+
+            target_file = file.split('_')[:-1]
+            target_file = '_'.join(target_file) + '_0.JPG'
+
+            target = self.transform(Image.open(os.path.join(self.path_target,target_file)))
+
             self.images.append(img)
-        for file in pbar_target:
-            target = self.transform(Image.open(os.path.join(self.path_target,file)))
             self.targets.append(target)
 
     def __len__(self):
