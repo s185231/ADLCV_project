@@ -20,10 +20,16 @@ from ddpm import Diffusion
 from model import UNet
 
 import wandb
-from src.load_data import get_dataloaders
+from src.load_data import get_dataloaders, get_Sprites_dataloaders
 
 
 def save_images(images, originals, targets, path, show=True, title=None):
+    images = 0.5*images + 0.5
+    originals = 0.5*originals + 0.5
+    targets = 0.5*targets + 0.5
+    images = images.clamp(0, 1)
+    originals = originals.clamp(0, 1)
+    targets = targets.clamp(0, 1)
     nrow = int(images.shape[0])
     images = torch.cat((images, originals, targets), dim=0)
     grid = torchvision.utils.make_grid(images, nrow=nrow)
@@ -52,6 +58,8 @@ def train(config = None):
         print(wandb.config)
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')  
         print(f"Model will run on {device}")
+        Data_type = wandb.config.Data
+
         T = wandb.config.T
         img_size = wandb.config.img_size
         channels = wandb.config.channels
@@ -76,7 +84,12 @@ def train(config = None):
         time_stamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
         create_result_folders(os.path.join(experiment_name, time_stamp))
-        trainloader, valloader = get_dataloaders(ev, batch_size, img_size, testing=testing)
+        if Data_type == 'sprites':
+            trainloader, valloader = get_Sprites_dataloaders(ev, batch_size, testing=testing)
+        elif Data_type == 'exposure':
+            trainloader, valloader = get_dataloaders(ev, batch_size, img_size, testing=testing)
+        else:
+            raise Exception('Data type not supported')
 
         model = UNet(img_size=img_size, c_in=2*input_channels, c_out=input_channels, 
                     time_dim=time_dim,channels=channels, device=device).to(device)
@@ -136,6 +149,9 @@ def train(config = None):
                 if i == random_idx:
                     random_image = image
                     random_target = target
+                    if random_image.shape[0] > 6:
+                        random_image = random_image[:6]
+                        random_target = random_target[:6]
 
             val_loss /= len(valloader)
 
