@@ -5,6 +5,7 @@ src/ddpm.py
 src/eval_model.py
 src/load_data.py
 src/model.py
+src/resize_images.py
 src/sort_data_folders.py
 src/sweep.py
 src/train.py

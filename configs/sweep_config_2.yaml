@@ -4,6 +4,8 @@ metric:
   name: val loss
   goal: minimize
 parameters:
+  Data:
+    value: exposure
   lr:
     min: 0.00001
     max: 0.01
