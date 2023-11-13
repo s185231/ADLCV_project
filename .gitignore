@@ -4,3 +4,7 @@ models/
 results/
 src/__init__.py
 wandb/
+src.egg-info/
+dist/
+build/
+src/__pycache__/

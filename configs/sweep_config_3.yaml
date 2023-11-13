@@ -8,14 +8,14 @@ parameters:
     min: 0.00001
     max: 0.01
   num_epochs:
-    value: 10
+    value: 30
   batch_size:
     value: 4
   beta_start:
     min: 0.00008
     max: 0.0003
   beta_end:
-    min: 0.009
+    min: 0.0004
     max: 0.04
   ev:
     value: P1
