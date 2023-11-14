@@ -1,0 +1,23 @@
+T:
+  value: 500
+img_size:
+  value: 32
+channels:
+  value: 64
+time_dim:
+  value: 256
+lr:
+  value: 0.0029
+num_epochs:
+  value: 40
+batch_size:
+  value: 64
+beta_start:
+  value: 0.00026
+beta_end:
+  value: 0.0335
+ev:
+  value: P1
+testing:
+  value: False
+

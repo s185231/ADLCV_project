@@ -3,6 +3,7 @@ runs/
 models/
 results/
 src/__init__.py
+build/lib/src/__init__.py
 wandb/
 src.egg-info/
 dist/
