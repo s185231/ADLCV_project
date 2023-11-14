@@ -100,7 +100,7 @@ class SpritesDataset(Dataset):
         print(f"Dataset shape: {self.imgs.shape}")
 
         if testing:
-            self.imgs = self.imgs[:10]
+            self.imgs = self.imgs[:20]
         
         self.transform = transform
 
@@ -116,13 +116,21 @@ class SpritesDataset(Dataset):
             if ev == 'P1':
                 img = 2*img
                 img = np.clip(img, 0, 1)
-            elif ev == 'P2':
-                img = 2*img
-                img = np.clip(img, 0, 1)
             elif ev == 'N1':
                 img = img/2
+            elif ev == 'both':
+                # pick random number:
+                r = random.random()
+                if r < 0.5:
+                    img = 2*img
+                    img = np.clip(img, 0, 1)
+                else:
+                    img = img/2
             else:
-                img = img/2
+                # get random number between 0 and 2
+                gamma = random.random()*2
+                img = img**(1/gamma)
+
             img = img.astype(np.float32)
             img = self.transform(img)
             self.images.append(img)
@@ -142,7 +150,7 @@ class SpritesDataset(Dataset):
 
 
 def get_Sprites_dataloaders(ev, batch_size, testing = False):
-    assert (ev == 'P1' or ev == 'N1' or ev == 'P2' or ev == 'N2'), "Please input P1, P2, N1 or N2"
+    assert (ev == 'P1' or ev == 'N1' or ev == 'P2' or ev == 'N2' or 'both' or 'both_random'), "Please input P1, P2, N1, N2 or both"
 
     data_transform = transforms.Compose(
         [

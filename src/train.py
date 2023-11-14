@@ -30,11 +30,17 @@ def save_images(images, originals, targets, path, show=True, title=None):
     images = images.clamp(0, 1)
     originals = originals.clamp(0, 1)
     targets = targets.clamp(0, 1)
-    nrow = int(images.shape[0])
-    images = torch.cat((images, originals, targets), dim=0)
-    grid = torchvision.utils.make_grid(images, nrow=nrow)
-    ndarr = grid.permute(1, 2, 0).to('cpu').numpy()
+    # show with imageas in the first collumn, originals in the second and targets in the third
+    for i in range(images.shape[0]):
+        imgs = torch.cat((originals[i].unsqueeze(0), images[i].unsqueeze(0), targets[i].unsqueeze(0)), dim=0)
+        try:
+            ndarr = torch.cat((ndarr, imgs), dim=0)
+        except:
+            ndarr = imgs
+    ndarr = torchvision.utils.make_grid(ndarr, nrow=3)
+    ndarr = ndarr.permute(1, 2, 0).detach().cpu().numpy()
     if title is not None:
+        title = title + '\n     input     output     target)'
         plt.title(title)
     plt.imshow(ndarr)
     plt.axis('off')
@@ -43,6 +49,34 @@ def save_images(images, originals, targets, path, show=True, title=None):
     if show:
         plt.show()
     plt.close()
+
+
+def save_images(images, originals, targets, path, show=True, title=None):
+    images = 0.5*images + 0.5
+    originals = 0.5*originals + 0.5
+    targets = 0.5*targets + 0.5
+    images = images.clamp(0, 1)
+    originals = originals.clamp(0, 1)
+    targets = targets.clamp(0, 1)
+    fig, ax = plt.subplots(images.shape[0], 3, figsize=(3, images.shape[0]))
+    ax[0, 0].set_title('input')
+    ax[0, 1].set_title('output')
+    ax[0, 2].set_title('target')
+    for i in range(images.shape[0]):
+        ax[i, 0].imshow(originals[i].permute(1, 2, 0).detach().cpu().numpy())
+        ax[i, 0].axis('off')
+        ax[i, 1].imshow(images[i].permute(1, 2, 0).detach().cpu().numpy())
+        ax[i, 1].axis('off')
+        ax[i, 2].imshow(targets[i].permute(1, 2, 0).detach().cpu().numpy())
+        ax[i, 2].axis('off')
+    
+    if title is not None:
+        fig.suptitle(title)
+    fig.tight_layout()
+    if path is not None:
+        fig.savefig(path, bbox_inches='tight', pad_inches=0)
+
+
 
 
 def create_result_folders(experiment_name):
