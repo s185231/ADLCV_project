@@ -95,7 +95,7 @@ def train(config = None):
         
         create_result_folders(os.path.join(experiment_name, time_stamp))
         if Data_type == 'sprites':
-            trainloader, valloader = get_Sprites_dataloaders(ev, batch_size, testing=testing)
+            trainloader, valloader, _ = get_Sprites_dataloaders(ev, batch_size, testing=testing)
         elif Data_type == 'exposure':
             trainloader, valloader = get_dataloaders(ev, batch_size, img_size, testing=testing)
         else:
