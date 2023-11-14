@@ -68,6 +68,8 @@ def train(config = None):
         lr = wandb.config.lr
         num_epochs = wandb.config.num_epochs
         ev = wandb.config.ev
+        time_stamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
         # split config_path
         if config is not None:
             experiment_name = config.split('/')[-1].split('.')[0]
@@ -84,8 +86,7 @@ def train(config = None):
 
 
         """Implements algrorithm 1 (Training) from the ddpm paper at page 4"""
-        time_stamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-
+        
         create_result_folders(os.path.join(experiment_name, time_stamp))
         if Data_type == 'sprites':
             trainloader, valloader = get_Sprites_dataloaders(ev, batch_size, testing=testing)
