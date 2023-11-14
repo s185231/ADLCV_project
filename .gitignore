@@ -9,3 +9,4 @@ src.egg-info/
 dist/
 build/
 src/__pycache__/
+sweeps/

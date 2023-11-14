@@ -71,8 +71,11 @@ def train(config = None):
         # split config_path
         if config is not None:
             experiment_name = config.split('/')[-1].split('.')[0]
+            logger = SummaryWriter(os.path.join("runs", experiment_name, time_stamp))
         else:
-            experiment_name = 'sweep'
+            experiment_name = "sweep" #wandb.run.name
+            logger = SummaryWriter(os.path.join("sweeps", experiment_name, time_stamp))
+        
         input_channels=3
         show=False
         beta_start = wandb.config.beta_start
