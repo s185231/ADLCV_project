@@ -44,7 +44,7 @@ def save_images(images, originals, targets, path, show=True, title=None):
     
     if title is not None:
         fig.suptitle(title)
-    fig.subplots_adjust(wspace=0, hspace=0, top=0.8)
+    fig.subplots_adjust(wspace=0, hspace=0, top=0.85)
     if path is not None:
         fig.savefig(path, bbox_inches='tight', pad_inches=0)
 
@@ -95,7 +95,7 @@ def train(config = None):
         
         create_result_folders(os.path.join(experiment_name, time_stamp))
         if Data_type == 'sprites':
-            trainloader, valloader = get_Sprites_dataloaders(ev, batch_size, testing=testing)
+            trainloader, valloader, _ = get_Sprites_dataloaders(ev, batch_size, testing=testing)
         elif Data_type == 'exposure':
             trainloader, valloader = get_dataloaders(ev, batch_size, img_size, testing=testing)
         else:
@@ -108,7 +108,7 @@ def train(config = None):
         # use MSE loss
         mse = torch.nn.MSELoss()
 
-        logger = SummaryWriter(os.path.join("runs", experiment_name, time_stamp))
+        #logger = SummaryWriter(os.path.join("runs", experiment_name, time_stamp))
         l = len(trainloader)
 
         for epoch in range(1, num_epochs + 1):
@@ -159,9 +159,9 @@ def train(config = None):
                 if i == random_idx:
                     random_image = image
                     random_target = target
-                    if random_image.shape[0] > 6:
-                        random_image = random_image[:6]
-                        random_target = random_target[:6]
+                    if random_image.shape[0] > 4:
+                        random_image = random_image[:4]
+                        random_target = random_target[:4]
 
             val_loss /= len(valloader)
 

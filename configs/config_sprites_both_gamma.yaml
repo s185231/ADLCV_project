@@ -19,7 +19,7 @@ beta_start:
 beta_end:
   value: 0.02
 ev:
-  value: P1
+  value: both_gamma
 testing:
-  value: True
+  value: False
 

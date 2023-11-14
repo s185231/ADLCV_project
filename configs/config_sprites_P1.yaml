@@ -5,7 +5,7 @@ T:
 img_size:
   value: 16
 channels:
-  value: 64
+  value: 32
 time_dim:
   value: 256
 lr:
