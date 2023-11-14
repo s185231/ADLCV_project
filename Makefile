@@ -63,7 +63,7 @@ train:
 ## Evaluating saved model. Run using "make eval ckpt='path_to.ckpt'" (with quotes). Possible argument is CUDA_NUM=X, where X in {0,1}
 eval:
 	$(PYTHON_INTERPRETER) setup.py install
-	CUDA_VISIBLE_DEVICES=$(CUDA_NUM) $(PYTHON_INTERPRETER) src/eval_model.py --path=$(ckpt)
+	CUDA_VISIBLE_DEVICES=$(CUDA_NUM) $(PYTHON_INTERPRETER) src/ddpm_eval.py --path=$(path) --config=$(config)
 
 ## Running a sweep over parameters in the 'config/sweep_config.yaml' file. Possible argument is CUDA_NUM=X, where X in {0,1}
 sweep:

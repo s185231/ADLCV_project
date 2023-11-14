@@ -30,34 +30,6 @@ def save_images(images, originals, targets, path, show=True, title=None):
     images = images.clamp(0, 1)
     originals = originals.clamp(0, 1)
     targets = targets.clamp(0, 1)
-    # show with imageas in the first collumn, originals in the second and targets in the third
-    for i in range(images.shape[0]):
-        imgs = torch.cat((originals[i].unsqueeze(0), images[i].unsqueeze(0), targets[i].unsqueeze(0)), dim=0)
-        try:
-            ndarr = torch.cat((ndarr, imgs), dim=0)
-        except:
-            ndarr = imgs
-    ndarr = torchvision.utils.make_grid(ndarr, nrow=3)
-    ndarr = ndarr.permute(1, 2, 0).detach().cpu().numpy()
-    if title is not None:
-        title = title + '\n     input     output     target)'
-        plt.title(title)
-    plt.imshow(ndarr)
-    plt.axis('off')
-    if path is not None:
-        plt.savefig(path, bbox_inches='tight', pad_inches=0)
-    if show:
-        plt.show()
-    plt.close()
-
-
-def save_images(images, originals, targets, path, show=True, title=None):
-    images = 0.5*images + 0.5
-    originals = 0.5*originals + 0.5
-    targets = 0.5*targets + 0.5
-    images = images.clamp(0, 1)
-    originals = originals.clamp(0, 1)
-    targets = targets.clamp(0, 1)
     fig, ax = plt.subplots(images.shape[0], 3, figsize=(3, images.shape[0]))
     ax[0, 0].set_title('input')
     ax[0, 1].set_title('output')
@@ -72,7 +44,7 @@ def save_images(images, originals, targets, path, show=True, title=None):
     
     if title is not None:
         fig.suptitle(title)
-    fig.tight_layout()
+    fig.subplots_adjust(wspace=0, hspace=0, top=0.8)
     if path is not None:
         fig.savefig(path, bbox_inches='tight', pad_inches=0)
 

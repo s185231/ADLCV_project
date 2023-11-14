@@ -176,7 +176,7 @@ def get_Sprites_dataloaders(ev, batch_size, testing = False):
 
     trainloader = DataLoader(trainset, batch_size=batch_size, num_workers=8, shuffle=True)
     valloader = DataLoader(valset, batch_size=batch_size, num_workers=8, shuffle=False)
-    #testloader = DataLoader(testset, batch_size=batch_size, num_workers=8, shuffle=False)
+    testloader = DataLoader(testset, batch_size=batch_size, num_workers=8, shuffle=False)
 
-    return trainloader, valloader#, testloader
+    return trainloader, valloader, testloader
 
