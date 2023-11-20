@@ -176,7 +176,7 @@ class SpritesDataset(Dataset):
             elif ev == 'N1':
                 img = img/2
             if ev == 'P2':
-                gamma = 1.5
+                gamma = 2
                 img = img**(1/gamma)
             elif ev == 'N2':
                 gamma = 0.5
