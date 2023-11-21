@@ -19,6 +19,33 @@ import argparse
 
 from src.load_data import get_test_dataloader, get_Sprites_dataloaders
 
+
+def save_images(images, originals, targets, path, show=True, title=None):
+    images = 0.5*images + 0.5
+    originals = 0.5*originals + 0.5
+    targets = 0.5*targets + 0.5
+    images = images.clamp(0, 1)
+    originals = originals.clamp(0, 1)
+    targets = targets.clamp(0, 1)
+    fig, ax = plt.subplots(images.shape[0], 3, figsize=(3, images.shape[0]))
+    ax[0, 0].set_title('input')
+    ax[0, 1].set_title('output')
+    ax[0, 2].set_title('target')
+    for i in range(images.shape[0]):
+        ax[i, 0].imshow(originals[i].permute(1, 2, 0).detach().cpu().numpy())
+        ax[i, 0].axis('off')
+        ax[i, 1].imshow(images[i].permute(1, 2, 0).detach().cpu().numpy())
+        ax[i, 1].axis('off')
+        ax[i, 2].imshow(targets[i].permute(1, 2, 0).detach().cpu().numpy())
+        ax[i, 2].axis('off')
+    
+    if title is not None:
+        fig.suptitle(title)
+    fig.subplots_adjust(wspace=0, hspace=0, top=0.85)
+    if path is not None:
+        fig.savefig(path, bbox_inches='tight', pad_inches=0)
+
+
 class VGG(nn.Module):
     def __init__(self, num_classes=1):
         super().__init__()
@@ -82,6 +109,7 @@ def eval(config = None, pth = None):
         beta_start = wandb.config.beta_start
         beta_end = wandb.config.beta_end
         testing = wandb.config.testing
+        experiment_name = config.split('/')[-1].split('.')[0]
 
         model = UNet(img_size=img_size, c_in=2*input_channels, c_out=input_channels, 
                     time_dim=time_dim,channels=channels, device=device).to(device)
@@ -95,6 +123,8 @@ def eval(config = None, pth = None):
         vgg.eval()
         #vgg.load_state_dict(torch.load('weights/vgg-sprites/model.pth', map_location=device))
         dims = 256 # vgg feature dim
+
+        batch_size = 6
 
         if Data_type == 'sprites':
             _, _, test_loader = get_Sprites_dataloaders(ev, batch_size, testing=testing)
@@ -122,6 +152,8 @@ def eval(config = None, pth = None):
             generated_feat[start_idx:start_idx + original_features.shape[0]] = predicted_features
 
             start_idx = start_idx + original_features.shape[0]
+
+            save_images(images=predicted_images, originals=images, targets=target, path=os.path.join("results", experiment_name, f'{start_idx}.jpg'))
 
         mu_original, sigma_original = feature_statistics(original_feat)
         mu_target, sigma_target = feature_statistics(target_feat)

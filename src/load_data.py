@@ -175,11 +175,18 @@ class SpritesDataset(Dataset):
                 img = np.clip(img, 0, 1)
             elif ev == 'N1':
                 img = img/2
-            if ev == 'P2':
-                gamma = 2
+            elif ev == 'P2':
+                gamma = 2.5
                 img = img**(1/gamma)
             elif ev == 'N2':
                 gamma = 0.5
+                img = img**(1/gamma)
+            elif ev == 'P':
+                gamma = random.random()*3+1
+                img = img**(1/gamma)
+            elif ev == 'N':
+                #get random gamma between 0.2 and 1
+                gamma = random.random()*0.8+0.2
                 img = img**(1/gamma)
             elif ev == 'both':
                 r = random.random()
@@ -189,7 +196,7 @@ class SpritesDataset(Dataset):
                 else:
                     img = img/2
             else:
-                gamma = random.random()*2
+                gamma = random.random()*3+0.2
                 img = img**(1/gamma)
 
             img = img.astype(np.float32)
