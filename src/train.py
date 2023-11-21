@@ -41,6 +41,7 @@ def save_images(images, originals, targets, path, show=True, title=None):
         ax[i, 1].axis('off')
         ax[i, 2].imshow(targets[i].permute(1, 2, 0).detach().cpu().numpy())
         ax[i, 2].axis('off')
+    plt.close()
     
     if title is not None:
         fig.suptitle(title)
