@@ -96,7 +96,7 @@ def eval(config = None, pth = None):
         model.load_state_dict(torch.load(pth, map_location=device))
         model.eval()
 
-        batch_size = 128
+        batch_size = 128*2
 
         if Data_type == 'sprites':
             _, _, test_loader = get_Sprites_dataloaders(ev, batch_size, testing=testing)
@@ -105,6 +105,8 @@ def eval(config = None, pth = None):
         else:
             raise Exception('Data type not supported')
 
+        print(len(test_loader))
+        print(len(test_loader.dataset))
         L1 = 0
         L2 = 0
         for images, target in tqdm(test_loader):
@@ -129,7 +131,7 @@ def eval(config = None, pth = None):
 
         #L1 = L1/len(test_loader.dataset)
         #L2 = L2/len(test_loader.dataset)
-        L2 = L2/len(test_loader.dataset)
+        L2 = L2/len(test_loader)
         #print(f'L1 =  {L1:.3f}')
         print(f'L2 =  {L2:.3f}')
             
