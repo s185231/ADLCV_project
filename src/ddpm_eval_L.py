@@ -55,8 +55,11 @@ def L(input, target, l):
     diff = input - target
     diff = diff.reshape((diff.shape[0], -1))
     print(diff.shape)
-    L = linalg.norm(diff, l)
+    L = linalg.norm(diff, l, axis=0)
+    print(L.shape)
     return L
+
+mse = torch.nn.MSELoss()
 
 def eval(config = None, pth = None):
     with wandb.init(config=config, 
@@ -100,21 +103,26 @@ def eval(config = None, pth = None):
 
         L1 = 0
         L2 = 0
+        i = 0
         for images, target in tqdm(test_loader):
+            i += 1
+            if i>10:
+                break
             images = images.to(device)
             target = target.to(device)
             predicted_images = diffusion.p_sample_loop(images, model, batch_size=images.shape[0])
             
             # store features
-            L1 += L(predicted_images, target, 1)
-            L2 += L(predicted_images, target, 2)
+            #L1 = L(predicted_images, target, 1)
+            #L2 += L(predicted_images, target, 2)
+            L2 += mse(predicted_images, target)
             
             #save_images(images=predicted_images, originals=images, targets=target, path=os.path.join("results", experiment_name, f'{start_idx}.jpg'))
 
-        L1 = L1/len(test_loader.dataset)
+        #L1 = L1/len(test_loader.dataset)
+        #L2 = L2/len(test_loader.dataset)
         L2 = L2/len(test_loader.dataset)
-        
-        print(f'L1 =  {L1:.3f}')
+        #print(f'L1 =  {L1:.3f}')
         print(f'L2 =  {L2:.3f}')
             
 
