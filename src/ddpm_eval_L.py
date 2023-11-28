@@ -103,11 +103,7 @@ def eval(config = None, pth = None):
 
         L1 = 0
         L2 = 0
-        i = 0
         for images, target in tqdm(test_loader):
-            i += 1
-            if i>10:
-                break
             images = images.to(device)
             target = target.to(device)
             predicted_images = diffusion.p_sample_loop(images, model, batch_size=images.shape[0])
