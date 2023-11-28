@@ -47,7 +47,7 @@ def save_images(images, originals, targets, path, show=True, title=None):
     fig.subplots_adjust(wspace=0, hspace=0, top=0.85)
     if path is not None:
         fig.savefig(path, bbox_inches='tight', pad_inches=0)
-
+    plt.close(fig)
 
 
 
@@ -110,6 +110,7 @@ def train(config = None):
 
         #logger = SummaryWriter(os.path.join("runs", experiment_name, time_stamp))
         l = len(trainloader)
+        val_loss_current = np.inf
 
         for epoch in range(1, num_epochs + 1):
             logging.info(f"Starting epoch {epoch}:")
@@ -176,8 +177,10 @@ def train(config = None):
             #sampled_images = diffusion.p_sample_loop(image, model, batch_size=image.shape[0])
             #save_images(images=sampled_images, originals=image, targets=target, path=os.path.join("results", experiment_name, time_stamp, f"{epoch}.jpg"),
             #            show=show, title=f'Epoch {epoch}')
-            
-            torch.save(model.state_dict(), os.path.join("models", experiment_name, time_stamp, f"weights-{epoch}.pt"))
+            if val_loss < val_loss_current:
+                val_loss_current = val_loss
+                #torch.save(model.state_dict(), os.path.join("models", experiment_name, time_stamp, f"weights.pt"))
+                torch.save(model.state_dict(), os.path.join("models", experiment_name, time_stamp, f"weights-{epoch}.pt"))
 
 
 if __name__ == '__main__':

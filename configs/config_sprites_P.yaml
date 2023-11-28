@@ -11,7 +11,7 @@ time_dim:
 lr:
   value: 0.001
 num_epochs:
-  value: 30
+  value: 100
 batch_size:
   value: 128
 beta_start:

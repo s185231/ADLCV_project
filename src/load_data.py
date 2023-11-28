@@ -196,7 +196,12 @@ class SpritesDataset(Dataset):
                 else:
                     img = img/2
             else:
-                gamma = random.random()*3+0.2
+                r = random.random()
+                if r < 0.5:
+                    gamma = random.random()*3+1
+                else:
+                    # random gamma bet
+                    gamma = random.random()*0.8+0.2
                 img = img**(1/gamma)
 
             img = img.astype(np.float32)
