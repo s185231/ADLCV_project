@@ -47,11 +47,15 @@ def save_images(images, originals, targets, path, show=True, title=None):
 
 
 def L(input, target, l):
-    # https://en.wikipedia.org/wiki/Fr%C3%A9chet_distance
-    # HINT: https://docs.scipy.org/doc/scipy/reference/generated/scipy.linalg.sqrtm.html
-    # Implement FID score
-    input = input.squeeze(3).squeeze(2).cpu().numpy()
-    target = target.squeeze(3).squeeze(2).cpu().numpy()
+
+    input = 0.5*input + 0.5
+    target = 0.5*target + 0.5
+    input = input.clamp(0, 1)
+    target = target.clamp(0, 1)
+    input *= 255
+    target *= 255
+    #input = input.squeeze(3).squeeze(2).cpu().numpy()
+    #target = target.squeeze(3).squeeze(2).cpu().numpy()
     diff = input - target
     diff = diff.reshape((diff.shape[0], -1))
     print(diff.shape)
@@ -92,7 +96,7 @@ def eval(config = None, pth = None):
         model.load_state_dict(torch.load(pth, map_location=device))
         model.eval()
 
-        batch_size = 32
+        batch_size = 128
 
         if Data_type == 'sprites':
             _, _, test_loader = get_Sprites_dataloaders(ev, batch_size, testing=testing)
@@ -104,14 +108,22 @@ def eval(config = None, pth = None):
         L1 = 0
         L2 = 0
         for images, target in tqdm(test_loader):
+
             images = images.to(device)
             target = target.to(device)
-            predicted_images = diffusion.p_sample_loop(images, model, batch_size=images.shape[0])
+            input = diffusion.p_sample_loop(images, model, batch_size=images.shape[0])
             
+            input = 0.5*input + 0.5
+            target = 0.5*target + 0.5
+            input = input.clamp(0, 1)
+            target = target.clamp(0, 1)
+            input *= 255
+            target *= 255
             # store features
             #L1 = L(predicted_images, target, 1)
             #L2 += L(predicted_images, target, 2)
-            L2 += mse(predicted_images, target)
+            L = mse(input, target)
+            L2 += L.item()
             
             #save_images(images=predicted_images, originals=images, targets=target, path=os.path.join("results", experiment_name, f'{start_idx}.jpg'))
 
